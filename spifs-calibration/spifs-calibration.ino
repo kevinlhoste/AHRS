@@ -2,8 +2,29 @@
 #include "SPIFFS.h"
 #include "MPU9250.h"
 float calibrationValues[12];
+float heading;
 
 MPU9250 mpu;
+
+void getHeading(void)
+{
+  heading=(180*atan2(mpu.getMag(1),mpu.getMag(0)))/PI;
+  if(heading <0) heading +=360;
+}
+
+/*void getTiltHeading(void)
+{
+  float pitch = asin(-Axyz[0]);
+  float roll = asin(Axyz[1]/cos(pitch));
+
+  float xh = Mxyz[0] * cos(pitch) + Mxyz[2] * sin(pitch);
+  float yh = Mxyz[0] * sin(roll) * sin(pitch) + Mxyz[1] * cos(roll) - Mxyz[2] * sin(roll) * cos(pitch);
+  float zh = -Mxyz[0] * cos(roll) * sin(pitch) + Mxyz[1] * sin(roll) + Mxyz[2] * cos(roll) * cos(pitch);
+  tiltheading = 180 * atan2(yh, xh)/PI;
+  if(yh<0)    tiltheading +=360;
+}*/
+
+
 
 void saveCalibration()
 {
@@ -206,5 +227,7 @@ void setup() {
     }
 
 void loop() {
-
+  mpu.update();
+  getHeading();
+  Serial.println(heading);
 }
