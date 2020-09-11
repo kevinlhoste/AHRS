@@ -222,7 +222,16 @@ public:
         Serial.print(" qy = "); Serial.print(q[2]);
         Serial.print(" qz = "); Serial.println(q[3]);
     }
-
+	
+	void printMagDataT() const
+    {
+       
+        // Print mag values in degree/sec
+        Serial.print("mx = "); Serial.print(m[0]/10);
+        Serial.print(" my = "); Serial.print(m[1]/10);
+        Serial.print(" mz = "); Serial.print(m[2]/10); Serial.println(" uT");
+    }
+	
     void printRollPitchYaw() const
     {
         Serial.print("Yaw, Pitch, Roll: ");
