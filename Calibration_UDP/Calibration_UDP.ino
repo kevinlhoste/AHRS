@@ -20,13 +20,13 @@ WiFiMulti WiFiMulti;
 int opMode=0;
 
 // WiFi network name and password:
-const char * ssid = "Ke20 iPhone";
-const char * password = "z123456789";
+const char * ssid = "movuino";
+const char * password = "";
 
 //IP address to send UDP data to:
 // either use the ip address of the server or 
 // a network broadcast address
-const char * udpAddress = "172.20.10.10";
+const char * udpAddress = "192.168.0.102";
 const int udpPort = 2390;
 
 //Are we currently connected?
