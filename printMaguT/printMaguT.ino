@@ -13,9 +13,7 @@ void setup()
     delay(2000);
     mpu.setup();
     delay(5000);
-    Serial.println("selftest()");
-    //mpu.selfTest();
-    timer1=millis();
+    mpu.c
     
 }
 
@@ -25,10 +23,15 @@ void loop()
     if ((millis() - prev_ms) > 16)
     {
         mpu.update();
-        mpu.printMagDataT();
-        m[0]= mpu.getMag(0);
-        m[1]= mpu.getMag(1);
-        m[2]= mpu.getMag(2);
+        //mpu.printMagDataT();
+        m[0]= mpu.getMag(0)/10;
+        m[1]= mpu.getMag(1)/10;
+        m[2]= mpu.getMag(2)/10;
+        Serial.print(m[0]);
+        Serial.print(" ");
+        Serial.print(m[1]);
+        Serial.print(" ");
+        Serial.println(m[2]);
 /*
         Serial.print("roll  (x-forward (north)) : ");
         Serial.println(mpu.getRoll());
