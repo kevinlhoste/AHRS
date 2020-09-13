@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      text-align: center;
+      font-family: "Trebuchet MS", Arial;
+      margin-left:auto;
+      margin-right:auto;
+    }
+    .slider {
+      width: 300px;
+    }
+  </style>
+  <script type="text/javascript" src="./js/jquery-3.5.1.min.js"></script>
+   <link rel="stylesheet" href="./css/fontawesome.css" media="screen">
+     <link rel="stylesheet" href="./css/solid.css" media="screen">
+  <link rel="stylesheet" href="./css/bootstrap.min.css" media="screen">
+  <link rel="stylesheet" href="./css/styles.css" media="screen">
+    <link rel="stylesheet" href="./css/bootstrap4-toggle.min.css" media="screen">
+  <script type="text/javascript" src="./js/bootstrap.bundle.min.js"></script>
+  <script type="text/javascript" src="./js/bootstrap4-toggle.min.js"></script>
+ 
+
+</head>
+<body>
+<div class="container">
+  <div class="row" style="height: 75px;">
+   <h1 class=" col h4 text-center">Movuino Shitty Compass</h4>
+  </div>
+  <div class="row" style="height: 50px;">
+  </div>
+  <div class="row">
+	<div class="col"></div>
+	<button  type="button" class=" col col-md-2 btn btn-danger" id="btn-calibrate-accGyro" onclick="this.blur();">
+		<p>Calibrate acc gyro</p>
+	</button>
+	<div class="col"></div>
+  </div>
+  <div class="row" style="height: 50px;">
+  </div>
+	 <div class="row" style="height: 100px;">
+</div>
+<div class="row">
+	<div class="col"></div>
+<button  type="button" class=" col col-md-2 btn btn-danger" id="btn-calibrate-mag" onclick="this.blur();">
+		<p>Calibrate Magnetometer</p>
+	</button>
+<div class="col"></div>
+</div>
+  <div class="row" style="height: 150px;">
+	<h2 class=" col h2 text-center" id="bearingValue">0</h4>
+  </div>
+  <div class="row align-center text-center" style="height: 30px;">
+  </div>
+  <div class="row" style="height: 150px;">
+	<h2 class=" col h2 text-center" id="batValue">0 V</h4>
+  </div>
+  </div>
+  </div>
+<script>
+$("document").ready(function(){
+	//console.log("hola");
+	websock = new WebSocket('ws://' + window.location.hostname + ':81/');
+	websock.onopen = function(evt) { console.log('websock open'); };
+	websock.onclose = function(evt) { console.log('websock close'); };
+	websock.onerror = function(evt) { console.log(evt); };
+	websock.binaryType = 'arraybuffer';
+	websock.onmessage = function(evt) {
+		var dataAccel = evt.data
+		var espace = " ";
+		splitString(dataAccel, espace);
+		console.log(evt);
+		};  
+	
+	$( "#btn-calibrate-accGyro" ).click(function() {
+		console.log("calibrate acc gyro");
+		sendCommand(5,0);
+		});
+	$( "#btn-calibrate-mag" ).click(function() {
+		console.log("calibrate mag");
+		sendCommand(6,0);
+		});
+	$( "#btn-down" ).click(function() {
+		console.log("down");
+		sendCommand(2,speedSlider.value);
+		});
+	$( "#btn-up" ).click(function() {
+		console.log("up");
+		console.log("speed:"+speedSlider.value);
+		sendCommand(1,speedSlider.value);
+		});
+	$( "#btn-left" ).click(function() {
+		console.log("left");
+		sendCommand(3,speedSlider.value);
+		});
+	$( "#btn-right" ).click(function() {
+		console.log("right");
+		sendCommand(4,speedSlider.value);
+		});
+	$( "#btn-stop" ).click(function() {
+		console.log("stop");
+		sendCommand(0,0);
+		speedSlider.value=0;
+		speedValue.innerHTML = 0;
+		});
+	
+	});
+
+function sendCommand(command,value) {
+	//console.log("motor "+ id + " value " +value);
+	var array=[0,0,0];
+	array[0]=0;
+	array[1]=command;
+	array[2]=value;
+	console.log(array);
+	var byteArray = new Uint8Array(array);
+	websock.send(byteArray.buffer);
+    }
+
+function splitString(stringToSplit, separator) {
+	var arrayOfStrings = stringToSplit.split(separator);
+	//console.log(arrayOfStrings);
+	var frameType=parseInt(arrayOfStrings[0]);
+	console.log(frameType);
+	//data packet
+	if(frameType==0){
+		var headingValue=arrayOfStrings[1];
+		$('#bearingValue').text(headingValue);
+		console.log(headingValue);
+	}
+	//bat data
+	else if(frameType==1){
+		var batValue=arrayOfStrings[1];
+		$('#batValue').text(batValue);
+	    console.log(batValue);
+	}
+	
+	//ay = arrayOfStrings[2];
+	//az = arrayOfStrings[3];
+	//b.innerHTML = "<p> ax = " + ax + " , ay = " + ay + " , az = " + az + "</p>";	
+	}	
+
+</script>
+</body>
+</html>
