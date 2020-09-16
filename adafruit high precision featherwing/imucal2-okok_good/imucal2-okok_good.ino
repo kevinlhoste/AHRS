@@ -12,15 +12,15 @@
 
 #include <Adafruit_SensorLab.h>
 #include <Adafruit_Sensor_Calibration.h>
-//#define ADAFRUIT_SENSOR_CALIBRATION_USE_EEPROM
 
 Adafruit_SensorLab lab;
 //Adafruit_Sensor_Calibration_EEPROM cal;
-/*#if defined(ADAFRUIT_SENSOR_CALIBRATION_USE_EEPROM)
+
+#if defined(ADAFRUIT_SENSOR_CALIBRATION_USE_EEPROM)
   Adafruit_Sensor_Calibration_EEPROM cal;
 #else
   Adafruit_Sensor_Calibration_SDFat cal;
-#endif*/
+#endif
 
 Adafruit_Sensor *mag = NULL, *gyro = NULL, *accel = NULL;
 sensors_event_t mag_event, gyro_event, accel_event;
@@ -33,7 +33,7 @@ void setup(void) {
   
   Serial.println(F("Sensor Lab - IMU Calibration!"));
   lab.begin();
-/*
+
   Serial.println("Calibration filesys test");
   if (!cal.begin()) {
     Serial.println("Failed to initialize calibration helper");
@@ -43,7 +43,7 @@ void setup(void) {
     Serial.println("No calibration loaded/found... will start with defaults");
   } else {
     Serial.println("Loaded existing calibration");
-  }*/
+  }
 
   Serial.println("Looking for a magnetometer");
   mag = lab.getMagnetometer();
@@ -80,6 +80,17 @@ void loop() {
   if (accel && ! accel->getEvent(&accel_event)) {
     return;
   }
+  cal.calibrate(mag_event);
+    float Pi = 3.14159;
+  // Calculate the angle of the vector y,x
+  float heading = (atan2((mag_event.magnetic.y*10),(mag_event.magnetic.x*10)) * 180) / Pi;
+
+  // Normalize to 0-360
+  if (heading < 0)
+  {
+    heading = 360 + heading;
+  }
+
   // 'Raw' values to match expectation of MOtionCal
   Serial.print("Raw:");
   Serial.print(int(accel_event.acceleration.x*8192/9.8)); Serial.print(",");
@@ -94,19 +105,21 @@ void loop() {
 
   // unified data
   Serial.print("Uni:");
-  Serial.print(accel_event.acceleration.x); Serial.print(",");
+ /* Serial.print(accel_event.acceleration.x); Serial.print(",");
   Serial.print(accel_event.acceleration.y); Serial.print(",");
   Serial.print(accel_event.acceleration.z); Serial.print(",");
   Serial.print(gyro_event.gyro.x, 4); Serial.print(",");
   Serial.print(gyro_event.gyro.y, 4); Serial.print(",");
-  Serial.print(gyro_event.gyro.z, 4); Serial.print(",");
+  Serial.print(gyro_event.gyro.z, 4); Serial.print(",");*/
   Serial.print(mag_event.magnetic.x); Serial.print(",");
   Serial.print(mag_event.magnetic.y); Serial.print(",");
   Serial.print(mag_event.magnetic.z); Serial.println("");
+  Serial.print("Compass Heading: ");
+  Serial.println(heading);
   loopcount++;
- // receiveCalibration();
+  receiveCalibration();
 
- /* // occasionally print calibration
+  // occasionally print calibration
   if (loopcount == 50 || loopcount > 100) {
     Serial.print("Cal1:");
     for (int i=0; i<3; i++) {
@@ -133,12 +146,12 @@ void loop() {
     Serial.println();
     loopcount = 0;
   }
- */
+ 
   delay(10); 
 }
 
 /********************************************************/
-/*
+
 byte caldata[68]; // buffer to receive magnetic calibration data
 byte calcount=0;
 
@@ -237,4 +250,4 @@ uint16_t crc16_update(uint16_t crc, uint8_t a)
     }
   }
   return crc;
-}*/
+}
